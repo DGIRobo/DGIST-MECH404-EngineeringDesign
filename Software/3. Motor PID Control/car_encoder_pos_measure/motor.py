@@ -1,9 +1,12 @@
 import time
+import datetime
 import busio
 import encoder
 
 from board import SCL, SDA
 from adafruit_pca9685 import PCA9685
+
+PI = 3.141592
 
 class Motor:
 	def __init__(self, IN1, IN2, ENA, encPinA, encPinB): 
@@ -18,6 +21,12 @@ class Motor:
 		self.dir_pin2 = IN2
 		self.throttle_pin = ENA
 		self._encoder = encoder.Encoder(encPinA, encPinB)
+		self._previous_time = datetime.datetime.now().timestamp()
+		self._current_time = datetime.datetime.now().timestamp()
+		self._incremental_pos = 0
+		self._incremental_pos_old = 0
+		self._vel = 0
+		self._absolute_pos = 0
 	
 	def PWM_Controller(self, pca, throttle):
 		'''
@@ -34,3 +43,14 @@ class Motor:
 			pca.channels[self.throttle_pin].duty_cycle = 0xFFFF
 		else:
 			pca.channels[self.throttle_pin].duty_cycle = throttle
+	
+	def motor_state_estimation(self):
+		self._current_time = datetime.datetime.now().timestamp()
+		time_interval = self._current_time - self._previous_time
+		self._incremental_pos_old = self._incremental_pos
+		self._incremental_pos = self._encoder._encoder_pulses * (2 * PI) / (44 * 29)
+		self._vel = (self._incremental_pos - self._incremental_pos_old) / time_interval
+		self._absolute_pos = (self._encoder._encoder_pulses % (44 * 29)) * (2 * PI) / (44 * 29)
+		print(f'Incremental position of BR wheel: {self._incremental_pos}')
+		print(f'Absolute position of BR wheel: {self._absolute_pos}')
+		self._previous_time = datetime.datetime.now().timestamp()
