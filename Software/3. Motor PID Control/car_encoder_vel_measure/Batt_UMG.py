@@ -53,9 +53,9 @@ class Batt_UMG:
 		
 	def Joystick_PWM_Controller(self):
 		gamepad_input = self.shanwan_gamepad.read_data()
-		vx = gamepad_input.analog_stick_left.y * (0.02) # range = -0.02~0.02
-		vy = gamepad_input.analog_stick_left.x * (-0.02) # range = -0.02~0.02
-		yaw = gamepad_input.analog_stick_right.x * (-self.lx-self.ly)
+		vx = gamepad_input.analog_stick_left.y # range = -1~1
+		vy = gamepad_input.analog_stick_left.x * (-1) # range = -1~1
+		yaw = gamepad_input.analog_stick_right.x * (-1) # range = -1~1
 		print(f'vx={vx}, vy={vy}, yaw={yaw}')
 		car_velocity_states = np.transpose(np.array([vx, vy, yaw]))
 		wheel_angular_velocities = self.Inverse_Kinematics(car_velocity_states)
