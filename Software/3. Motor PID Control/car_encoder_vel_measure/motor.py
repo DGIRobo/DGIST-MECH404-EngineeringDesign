@@ -51,6 +51,4 @@ class Motor:
 		self._incremental_pos = self._encoder._encoder_pulses * (2 * PI) / (44 * 29) # Dimension: rad
 		self._vel = (self._incremental_pos - self._incremental_pos_old) / time_interval # Dimension: rad/s
 		self._absolute_pos = (self._encoder._encoder_pulses % (44 * 29)) * (2 * PI) / (44 * 29) # Dimension: rad
-		print(f'Incremental position of BR wheel: {self._incremental_pos}')
-		print(f'Absolute position of BR wheel: {self._absolute_pos}')
 		self._previous_time = datetime.datetime.now().timestamp() # Dimension: sec
