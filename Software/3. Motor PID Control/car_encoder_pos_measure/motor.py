@@ -21,12 +21,12 @@ class Motor:
 		self.dir_pin2 = IN2
 		self.throttle_pin = ENA
 		self._encoder = encoder.Encoder(encPinA, encPinB)
-		self._previous_time = datetime.datetime.now().timestamp()
-		self._current_time = datetime.datetime.now().timestamp()
-		self._incremental_pos = 0
-		self._incremental_pos_old = 0
-		self._vel = 0
-		self._absolute_pos = 0
+		self._previous_time = datetime.datetime.now().timestamp() # Dimension: sec
+		self._current_time = datetime.datetime.now().timestamp() # Dimension: sec
+		self._incremental_pos = 0 # Dimension: rad
+		self._incremental_pos_old = 0 # Dimension: rad
+		self._vel = 0 # Dimension: rad/s
+		self._absolute_pos = 0 # Dimension: rad
 	
 	def PWM_Controller(self, pca, throttle):
 		'''
@@ -45,12 +45,12 @@ class Motor:
 			pca.channels[self.throttle_pin].duty_cycle = throttle
 	
 	def motor_state_estimation(self):
-		self._current_time = datetime.datetime.now().timestamp()
-		time_interval = self._current_time - self._previous_time
-		self._incremental_pos_old = self._incremental_pos
-		self._incremental_pos = self._encoder._encoder_pulses * (2 * PI) / (44 * 29)
-		self._vel = (self._incremental_pos - self._incremental_pos_old) / time_interval
-		self._absolute_pos = (self._encoder._encoder_pulses % (44 * 29)) * (2 * PI) / (44 * 29)
+		self._current_time = datetime.datetime.now().timestamp() # Dimension: sec
+		time_interval = self._current_time - self._previous_time # Dimension: sec
+		self._incremental_pos_old = self._incremental_pos # Dimension: rad
+		self._incremental_pos = self._encoder._encoder_pulses * (2 * PI) / (44 * 29) # Dimension: rad
+		self._vel = (self._incremental_pos - self._incremental_pos_old) / time_interval # Dimension: rad/s
+		self._absolute_pos = (self._encoder._encoder_pulses % (44 * 29)) * (2 * PI) / (44 * 29) # Dimension: rad
 		print(f'Incremental position of BR wheel: {self._incremental_pos}')
 		print(f'Absolute position of BR wheel: {self._absolute_pos}')
-		self._previous_time = datetime.datetime.now().timestamp()
+		self._previous_time = datetime.datetime.now().timestamp() # Dimension: sec
