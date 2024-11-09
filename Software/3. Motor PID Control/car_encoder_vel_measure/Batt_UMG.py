@@ -25,11 +25,10 @@ class Batt_UMG:
 		self.pca.frequency = 100 # Dimension: Hz
 		IO.setmode(IO.BCM)
 		IO.setwarnings(False)
-		self.cutoff = 10 # Dimension: Hz
-		self.FL_motor = motor.Motor(0, 1, 4, 4, 17, self.cutoff)
-		self.FR_motor = motor.Motor(3, 2, 5, 27, 18, self.cutoff)
-		self.BL_motor = motor.Motor(8, 9, 6, 22, 23, self.cutoff)
-		self.BR_motor = motor.Motor(11, 10, 7, 10, 24, self.cutoff)
+		self.FL_motor = motor.Motor(0, 1, 4, 4, 17)
+		self.FR_motor = motor.Motor(3, 2, 5, 27, 18)
+		self.BL_motor = motor.Motor(8, 9, 6, 22, 23)
+		self.BR_motor = motor.Motor(11, 10, 7, 10, 24)
 		self.shanwan_gamepad = gamepads.ShanWanGamepad()
 
 	def PWM_Controller(self, throttles):
