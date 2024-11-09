@@ -1,5 +1,8 @@
 import time
 import datetime
+
+import os
+
 import Batt_UMG
 
 if __name__ == '__main__':
@@ -33,4 +36,6 @@ if __name__ == '__main__':
 		car.Joystick_PWM_Controller()
 
 		previous_time = datetime.datetime.now().timestamp() # Dimension: sec
+
+		os.system('clear') 
 	car.shut_down()

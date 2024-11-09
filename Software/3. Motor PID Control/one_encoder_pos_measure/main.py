@@ -2,6 +2,7 @@ import RPi.GPIO as IO
 import encoder
 import datetime
 import time
+import os
 
 IO.setmode(IO.BCM)
 IO.setwarnings(False)
@@ -26,4 +27,4 @@ while True:
 		print(f'Incremental position of BR wheel: {incremental_pos}')
 		print(f'Absolute position of BR wheel: {absolute_pos}')
 		previous_time = datetime.datetime.now().timestamp()
-		time.sleep(0.5)
+		os.system('clear')
