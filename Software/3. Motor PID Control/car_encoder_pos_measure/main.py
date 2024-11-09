@@ -1,14 +1,24 @@
 import time
+import datetime
 import Batt_UMG
 
 if __name__ == '__main__':
 	car = Batt_UMG.Batt_UMG()
+
+	starting_time = datetime.datetime.now().timestamp() # Dimension: sec
+	previous_time = datetime.datetime.now().timestamp() # Dimension: sec
+
 	while True:
+		current_time = datetime.datetime.now().timestamp() # Dimension: sec
+		
 		car.FL_motor.motor_state_estimation()
 		car.FR_motor.motor_state_estimation()
 		car.BL_motor.motor_state_estimation()
 		car.BR_motor.motor_state_estimation()
 
+		print('-----------------------------------------------------------')
+		print(f'current time: {current_time - starting_time}')
+		print(f'time interval: {current_time - previous_time}')
 		print('-----------------------------------------------------------')
 		print(f'incremental position of FL wheel: {car.FL_motor._incremental_pos}')
 		print(f'incremental position of FR wheel: {car.FR_motor._incremental_pos}')
@@ -22,5 +32,5 @@ if __name__ == '__main__':
 
 		car.Joystick_PWM_Controller()
 
-		time.sleep(0.1)
+		previous_time = datetime.datetime.now().timestamp() # Dimension: sec
 	car.shut_down()
