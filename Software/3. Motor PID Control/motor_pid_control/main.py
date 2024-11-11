@@ -12,6 +12,7 @@ if __name__ == '__main__':
 	previous_time = datetime.datetime.now().timestamp() # Dimension: sec
 
 	while True:
+		previous_time = current_time
 		current_time = datetime.datetime.now().timestamp() # Dimension: sec
 
 		car.car_state_estimation()
@@ -36,8 +37,6 @@ if __name__ == '__main__':
 		#car.single_motor_incremental_pos_control(target_motor, 2*3.14, 1, 0, 0)
 		# velocity PID
 		#car.single_motor_vel_control(target_motor, 1, 1, 0, 0)
-		
-		previous_time = datetime.datetime.now().timestamp() # Dimension: sec
 
 		os.system('clear') 
 	car.shut_down()
