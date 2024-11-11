@@ -153,6 +153,7 @@ class Batt_UMG:
 		ctr_output = kp * self.car_pos_error + kd * self.car_pos_error_derivative + ki * self.car_pos_error_accumulate
 		wheel_angular_positions = self.Inverse_Kinematics(ctr_output)
 		self.PWM_Controller(wheel_angular_positions/26)
+		self._end_time = datetime.datetime.now().timestamp() # Dimension: sec
 		if (self._end_time - self._starting_time) < self._dT:
 			time.delay(self._dT - (self._end_time - self._starting_time))
 
@@ -164,6 +165,7 @@ class Batt_UMG:
 		ctr_output = kp * self.car_vel_error + kd * self.car_vel_error_derivative + ki * self.car_vel_error_accumulate
 		wheel_angular_velocities = self.Inverse_Kinematics(ctr_output)
 		self.PWM_Controller(wheel_angular_velocities/26)
+		self._end_time = datetime.datetime.now().timestamp() # Dimension: sec
 		if (self._end_time - self._starting_time) < self._dT:
 			time.delay(self._dT - (self._end_time - self._starting_time))
 	
