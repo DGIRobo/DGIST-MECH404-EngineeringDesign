@@ -11,8 +11,8 @@ pca.frequency = 100
 
 # Car's Left Wheel Moving Direction Setting
 # Front Left Wheel Rotation Direction Setting
-pca.channels[0].duty_cycle = 0xFFFF # Front Dirction
-pca.channels[1].duty_cycle = 0x0000
+pca.channels[0].duty_cycle = 0x0000 # Back Dirction
+pca.channels[1].duty_cycle = 0xFFFF
 # Front Right Wheel Rotation Direction Setting
 pca.channels[2].duty_cycle = 0x0000 # Front Dirction
 pca.channels[3].duty_cycle = 0xFFFF
@@ -20,8 +20,8 @@ pca.channels[3].duty_cycle = 0xFFFF
 pca.channels[8].duty_cycle = 0xFFFF # Front Dirction
 pca.channels[9].duty_cycle = 0x0000
 # Back Right Wheel Rotation Direction Setting
-pca.channels[10].duty_cycle = 0x0000 # Front Dirction
-pca.channels[11].duty_cycle = 0xFFFF
+pca.channels[10].duty_cycle = 0xFFFF # Back Dirction
+pca.channels[11].duty_cycle = 0x0000
 
 # Start Left Moving
 pca.channels[4].duty_cycle = 0xFFFF #assign 12V to Motor0 (FL)
@@ -39,8 +39,8 @@ time.sleep(5)
 
 # Car's Right Wheel Moving Direction Setting
 # Front Left Wheel Rotation Direction Setting
-pca.channels[0].duty_cycle = 0x0000 # Back Dirction
-pca.channels[1].duty_cycle = 0xFFFF
+pca.channels[0].duty_cycle = 0xFFFF # Front Dirction
+pca.channels[1].duty_cycle = 0x0000
 # Front Right Wheel Rotation Direction Setting
 pca.channels[2].duty_cycle = 0xFFFF # Back Dirction
 pca.channels[3].duty_cycle = 0x0000
@@ -48,8 +48,8 @@ pca.channels[3].duty_cycle = 0x0000
 pca.channels[8].duty_cycle = 0x0000 # Back Dirction
 pca.channels[9].duty_cycle = 0xFFFF
 # Back Right Wheel Rotation Direction Setting
-pca.channels[10].duty_cycle = 0xFFFF # Back Dirction
-pca.channels[11].duty_cycle = 0x0000
+pca.channels[10].duty_cycle = 0x0000 # Front Dirction
+pca.channels[11].duty_cycle = 0xFFFF
 
 # Start Right Moving
 pca.channels[4].duty_cycle = 0xFFFF #assign 12V to Motor0 (FL)
