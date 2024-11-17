@@ -39,20 +39,19 @@ class Batt_UMG:
 		self.car_vel_error_accumulate = np.zeros((3, 1))
 		# Time variables for control
 		self._system_starting_time = datetime.datetime.now().timestamp() # Dimension: sec
+		self._prev_time = datetime.datetime.now().timestamp() # Dimension: sec
 		self._starting_time = datetime.datetime.now().timestamp() # Dimension: sec
 		self._end_time = datetime.datetime.now().timestamp() # Dimension: sec
 		self._running_time = self._starting_time - self._system_starting_time # Dimension: sec
-		self._dT = 0.001 # Dimension: sec
+		self._dT = 0.02 # Dimension: sec
 		# Hardware init settings
 		self.i2c = busio.I2C(SCL, SDA)
 		self.pca = PCA9685(self.i2c, address=0x40)
 		self.pca.frequency = 1000 # Dimension: Hz
-		IO.setmode(IO.BCM)
-		IO.setwarnings(False)
-		self.FL_motor = motor.Motor(0, 1, 4, 4, 17, self._dT)
-		self.FR_motor = motor.Motor(3, 2, 5, 27, 18, self._dT)
-		self.BL_motor = motor.Motor(8, 9, 6, 22, 23, self._dT)
-		self.BR_motor = motor.Motor(11, 10, 7, 10, 24, self._dT)
+		self.FL_motor = motor.Motor(0, 1, 4, self._dT)
+		self.FR_motor = motor.Motor(3, 2, 5, self._dT)
+		self.BL_motor = motor.Motor(8, 9, 6, self._dT)
+		self.BR_motor = motor.Motor(11, 10, 7, self._dT)
 		self.shanwan_gamepad = gamepads.ShanWanGamepad()
 
 	def PWM_Controller(self, throttles):
@@ -85,14 +84,13 @@ class Batt_UMG:
 		wheel_angular_velocities = self.Inverse_Kinematics(car_velocity_states)
 		self.PWM_Controller(wheel_angular_velocities)
 	
-	def car_state_estimation(self):
-		self._starting_time = datetime.datetime.now().timestamp() # Dimension: sec
+	def car_state_estimation(self, FL_encoder_pulses, FR_encoder_pulses, BL_encoder_pulses, BR_encoder_pulses):
 		self._running_time = self._starting_time - self._system_starting_time # Dimension: sec
 		# motor state update
-		self.FL_motor.motor_state_estimation()
-		self.FR_motor.motor_state_estimation()
-		self.BL_motor.motor_state_estimation()
-		self.BR_motor.motor_state_estimation()
+		self.FL_motor.motor_state_estimation(FL_encoder_pulses)
+		self.FR_motor.motor_state_estimation(FR_encoder_pulses)
+		self.BL_motor.motor_state_estimation(BL_encoder_pulses)
+		self.BR_motor.motor_state_estimation(BR_encoder_pulses)
 		# car velocity update
 		wheel_angular_velocities = np.transpose(np.array([self.FL_motor._vel, self.FR_motor._vel, self.BL_motor._vel, self.BR_motor._vel]))
 		car_velocity_states = self.Forward_Kinematics(wheel_angular_velocities)
@@ -115,9 +113,6 @@ class Batt_UMG:
 			self.BL_motor.motor_incremental_pos_PID(self.pca, incremental_pos_ref, kp, kd, ki)
 		if target_motor == 'BR_motor':
 			self.BR_motor.motor_incremental_pos_PID(self.pca, incremental_pos_ref, kp, kd, ki)
-		self._end_time = datetime.datetime.now().timestamp() # Dimension: sec
-		if (self._end_time - self._starting_time) < self._dT:
-			time.delay(self._dT - (self._end_time - self._starting_time))
 
 	def single_motor_absolute_pos_control(self, target_motor, absolute_pos_ref, kp, kd, ki):
 		if target_motor == 'FL_motor':
@@ -128,9 +123,6 @@ class Batt_UMG:
 			self.BL_motor.motor_absolute_pos_PID(self.pca, absolute_pos_ref, kp, kd, ki)
 		if target_motor == 'BR_motor':
 			self.BR_motor.motor_absolute_pos_PID(self.pca, absolute_pos_ref, kp, kd, ki)
-		self._end_time = datetime.datetime.now().timestamp() # Dimension: sec
-		if (self._end_time - self._starting_time) < self._dT:
-			time.delay(self._dT - (self._end_time - self._starting_time))
 
 	def single_motor_vel_control(self, target_motor, vel_ref, kp, kd, ki):
 		if target_motor == 'FL_motor':
@@ -141,33 +133,28 @@ class Batt_UMG:
 			self.BL_motor.motor_vel_PID(self.pca, vel_ref, kp, kd, ki)
 		if target_motor == 'BR_motor':
 			self.BR_motor.motor_vel_PID(self.pca, vel_ref, kp, kd, ki)
-		self._end_time = datetime.datetime.now().timestamp() # Dimension: sec
-		if (self._end_time - self._starting_time) < self._dT:
-			time.delay(self._dT - (self._end_time - self._starting_time))
 	
 	def car_pos_PID(self, car_pos_ref, kp, kd, ki):
 		self.car_pos_error_old = self.car_pos_error
 		self.car_pos_error = car_pos_ref - np.transpose(np.array([self._x, self._y, self._yaw]))
 		self.car_pos_error_derivative = (self.car_pos_error - self.car_pos_error_old) / self._dT
-		self.car_pos_error_accumulate = self.car_pos_error_accumulate + self.car_pos_error
+		self.car_pos_error_accumulate = self.car_pos_error_accumulate + self.car_pos_error * self._dT
 		ctr_output = kp * self.car_pos_error + kd * self.car_pos_error_derivative + ki * self.car_pos_error_accumulate
 		wheel_angular_positions = self.Inverse_Kinematics(ctr_output)
 		self.PWM_Controller(wheel_angular_positions/26)
-		self._end_time = datetime.datetime.now().timestamp() # Dimension: sec
-		if (self._end_time - self._starting_time) < self._dT:
-			time.delay(self._dT - (self._end_time - self._starting_time))
 
 	def car_vel_PID(self, car_vel_ref, kp, kd, ki):
 		self.car_vel_error_old = self.car_vel_error
 		self.car_vel_error = car_vel_ref - np.transpose(np.array([self._vx, self._vy, self._yaw_rate]))
 		self.car_vel_error_derivative = (self.car_vel_error - self.car_vel_error_old) / self._dT
-		self.car_vel_error_accumulate = self.car_vel_error_accumulate + self.car_vel_error
+		self.car_vel_error_accumulate = self.car_vel_error_accumulate + self.car_vel_error * self._dT
 		ctr_output = kp * self.car_vel_error + kd * self.car_vel_error_derivative + ki * self.car_vel_error_accumulate
 		wheel_angular_velocities = self.Inverse_Kinematics(ctr_output)
 		self.PWM_Controller(wheel_angular_velocities/26)
-		self._end_time = datetime.datetime.now().timestamp() # Dimension: sec
-		if (self._end_time - self._starting_time) < self._dT:
-			time.delay(self._dT - (self._end_time - self._starting_time))
 	
 	def shut_down(self):
+		self.FL_motor.PWM_Controller(self.pca, 0)
+		self.FR_motor.PWM_Controller(self.pca, 0)
+		self.BL_motor.PWM_Controller(self.pca, 0)
+		self.BR_motor.PWM_Controller(self.pca, 0)
 		self.pca.deinit()

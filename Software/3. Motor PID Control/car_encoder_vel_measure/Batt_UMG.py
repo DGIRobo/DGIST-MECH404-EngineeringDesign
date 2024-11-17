@@ -22,13 +22,12 @@ class Batt_UMG:
 												[1, -1, (self.lx+self.ly)]])
 		self.i2c = busio.I2C(SCL, SDA)
 		self.pca = PCA9685(self.i2c, address=0x40)
-		self.pca.frequency = 100 # Dimension: Hz
-		IO.setmode(IO.BCM)
-		IO.setwarnings(False)
-		self.FL_motor = motor.Motor(0, 1, 4, 4, 17)
-		self.FR_motor = motor.Motor(3, 2, 5, 27, 18)
-		self.BL_motor = motor.Motor(8, 9, 6, 22, 23)
-		self.BR_motor = motor.Motor(11, 10, 7, 10, 24)
+		self.pca.frequency = 100
+		self._dT = 0.02 # Dimension: sec
+		self.FL_motor = motor.Motor(0, 1, 4, self._dT)
+		self.FR_motor = motor.Motor(3, 2, 5, self._dT)
+		self.BL_motor = motor.Motor(8, 9, 6, self._dT)
+		self.BR_motor = motor.Motor(11, 10, 7, self._dT)
 		self.shanwan_gamepad = gamepads.ShanWanGamepad()
 
 	def PWM_Controller(self, throttles):
